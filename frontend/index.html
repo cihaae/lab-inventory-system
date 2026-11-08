@@ -1,123 +1,583 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LabStock - Inventaris Laboratorium</title>
+    <title>LabStock - Sistem Pemantauan &amp; Inventaris Lab</title>
+    <meta name="description"
+        content="Dashboard analitikal dan manajemen inventaris perangkat laboratorium jaringan komputer.">
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <div class="app-layout">
 
-    <header class="app-header">
-        <div class="container header-inner">
-            <div>
-                <h1>LabStock</h1>
-                <p class="subtitle">Katalog Inventaris Barang Laboratorium</p>
+        <!-- Header & Top Bar -->
+        <header class="app-header">
+            <div class="container header-inner">
+                <div class="brand-group">
+                    <div class="brand-icon-box">
+                        <svg class="brand-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                            </path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="brand-heading-row">
+                            <h1 class="brand-title">LabStock</h1>
+                        </div>
+                        <p class="brand-tagline">Katalog &amp; Analitikal Inventaris Perangkat Laboratorium</p>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <!-- Theme Toggle (transitions.dev icon swap) -->
+                    <button type="button" class="btn btn-secondary btn-icon-round" id="theme-toggle"
+                        aria-label="Ganti tema gelap / terang" title="Ganti Tema">
+                        <svg class="theme-sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg class="theme-moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Export CSV Button -->
+                    <button type="button" class="btn btn-secondary" id="btn-export"
+                        title="Ekspor data inventaris ke file CSV">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <span>Ekspor CSV</span>
+                    </button>
+
+                    <!-- Add Item CTA Button -->
+                    <button type="button" class="btn btn-primary" id="btn-add">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Tambah Barang</span>
+                    </button>
+                </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="container">
+        <!-- Main Workspace -->
+        <main class="container main-content">
 
-        <!-- Dashboard: kartu ringkasan -->
-        <section class="stats" aria-label="Ringkasan inventaris">
-            <article class="stat-card">
-                <span class="stat-label">Total Jenis Barang</span>
-                <strong class="stat-value" id="stat-total">0</strong>
-            </article>
-            <article class="stat-card">
-                <span class="stat-label">Total Unit</span>
-                <strong class="stat-value" id="stat-units">0</strong>
-            </article>
-            <article class="stat-card stat-good">
-                <span class="stat-label">Kondisi Baik</span>
-                <strong class="stat-value" id="stat-good">0</strong>
-            </article>
-            <article class="stat-card stat-bad">
-                <span class="stat-label">Rusak</span>
-                <strong class="stat-value" id="stat-bad">0</strong>
-            </article>
-        </section>
+            <!-- Section 1: Bento Grid Stat KPI Cards -->
+            <section class="bento-stats-grid" aria-label="Ringkasan Statistik Inventaris">
 
-        <!-- Daftar inventaris -->
-        <section class="panel">
-            <div class="toolbar">
-                <input type="search" id="search-input" placeholder="Cari nama atau kategori...">
-                <select id="filter-condition">
-                    <option value="">Semua kondisi</option>
-                    <option value="Baik">Baik</option>
-                    <option value="Rusak">Rusak</option>
-                </select>
-                <button type="button" class="btn btn-primary" id="btn-add">+ Tambah Barang</button>
+                <!-- Card 1: Total Ragam Aset -->
+                <article class="bento-stat-card">
+                    <div class="stat-top-row">
+                        <span class="stat-caption">Total Jenis Aset</span>
+                        <div class="stat-icon-badge icon-primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-number-row">
+                        <strong class="stat-figure" id="stat-total">0</strong>
+                        <span class="stat-tag" id="stat-cat-tag">0 Kategori</span>
+                    </div>
+                    <p class="stat-footnote">Model perangkat terdata di sistem</p>
+                </article>
+
+                <!-- Card 2: Total Unit Fisik -->
+                <article class="bento-stat-card">
+                    <div class="stat-top-row">
+                        <span class="stat-caption">Total Fisik Unit</span>
+                        <div class="stat-icon-badge icon-info">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-number-row">
+                        <strong class="stat-figure" id="stat-units">0</strong>
+                        <span class="stat-unit-text">Unit Aset</span>
+                    </div>
+                    <p class="stat-footnote">Akumulasi kuantitas seluruh barang</p>
+                </article>
+
+                <!-- Card 3: Kondisi Baik -->
+                <article class="bento-stat-card card-good">
+                    <div class="stat-top-row">
+                        <span class="stat-caption">Kondisi Baik (Siap Pakai)</span>
+                        <div class="stat-icon-badge icon-success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-number-row">
+                        <strong class="stat-figure" id="stat-good">0</strong>
+                        <span class="stat-pct-badge badge-good" id="stat-good-pct">0%</span>
+                    </div>
+                    <div class="mini-progress-track">
+                        <div class="mini-progress-bar bar-good" id="bar-good" style="width: 0%"></div>
+                    </div>
+                    <p class="stat-footnote">Siap dipakai kegiatan praktikum</p>
+                </article>
+
+                <!-- Card 4: Kondisi Rusak -->
+                <article class="bento-stat-card card-bad">
+                    <div class="stat-top-row">
+                        <span class="stat-caption">Perlu Servis (Rusak)</span>
+                        <div class="stat-icon-badge icon-danger">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-number-row">
+                        <strong class="stat-figure" id="stat-bad">0</strong>
+                        <span class="stat-pct-badge badge-bad" id="stat-bad-pct">0%</span>
+                    </div>
+                    <div class="mini-progress-track">
+                        <div class="mini-progress-bar bar-bad" id="bar-bad" style="width: 0%"></div>
+                    </div>
+                    <p class="stat-footnote">Memerlukan pemeliharaan / pergantian</p>
+                </article>
+
+                <!-- Card 5: Kelaikan Operasional Lab -->
+                <article class="bento-stat-card card-health">
+                    <div class="stat-top-row">
+                        <span class="stat-caption">Kelaikan Operasional Lab</span>
+                        <div class="stat-icon-badge icon-health">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-number-row">
+                        <strong class="stat-figure font-mono" id="stat-health-score">0%</strong>
+                        <span class="health-chip" id="stat-health-status">Prima</span>
+                    </div>
+                    <p class="stat-footnote" id="stat-health-desc">Kesiapan perangkat untuk operasional praktikum</p>
+                </article>
+
+            </section>
+
+            <!-- Section 2: Analytical Visualizations (Native SVG Charts) -->
+            <section class="analytics-section" aria-label="Visualisasi Analitikal Laboratorium">
+
+                <!-- Chart 1: Donut Proporsi Kondisi -->
+                <div class="bento-panel-card chart-panel">
+                    <div class="panel-header-row">
+                        <div>
+                            <h2 class="panel-title">Analisis Rasio Kelaikan Perangkat</h2>
+                            <p class="panel-subtitle">Perbandingan fisik antara perangkat siap pakai vs dalam kendala
+                            </p>
+                        </div>
+                        <span class="panel-tag-badge">Kondisi Realtime</span>
+                    </div>
+
+                    <div class="chart-donut-layout">
+                        <!-- Native SVG Donut Chart -->
+                        <div class="donut-svg-wrapper">
+                            <svg class="donut-svg" viewBox="0 0 160 160" aria-label="Grafik Donut Kondisi">
+                                <circle class="donut-bg-ring" cx="80" cy="80" r="64" />
+                                <circle class="donut-segment donut-segment-good" id="svg-donut-good" cx="80" cy="80"
+                                    r="64" />
+                                <circle class="donut-segment donut-segment-bad" id="svg-donut-bad" cx="80" cy="80"
+                                    r="64" />
+                            </svg>
+                            <div class="donut-center-info">
+                                <span class="donut-center-num" id="donut-center-num">0</span>
+                                <span class="donut-center-label">Total Unit</span>
+                            </div>
+                        </div>
+
+                        <!-- Donut Legend & Analytical Breakdown -->
+                        <div class="donut-legend-block">
+                            <div class="legend-card">
+                                <div class="legend-indicator dot-good"></div>
+                                <div class="legend-data">
+                                    <div class="legend-title">Kondisi Baik (Operasional)</div>
+                                    <div class="legend-stat" id="donut-stat-good">0 unit (0%)</div>
+                                </div>
+                            </div>
+
+                            <div class="legend-card">
+                                <div class="legend-indicator dot-bad"></div>
+                                <div class="legend-data">
+                                    <div class="legend-title">Kondisi Rusak (Maintenance)</div>
+                                    <div class="legend-stat" id="donut-stat-bad">0 unit (0%)</div>
+                                </div>
+                            </div>
+
+                            <div class="insight-box">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                </svg>
+                                <span id="insight-text">Memuat analisis laboratorium...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Native Bar Distribution per Category -->
+                <div class="bento-panel-card chart-panel">
+                    <div class="panel-header-row">
+                        <div>
+                            <h2 class="panel-title">Sebaran Perangkat per Kategori Lab</h2>
+                            <p class="panel-subtitle">Volume stok fisik berdasarkan klaster peralatan jaringan</p>
+                        </div>
+                        <span class="panel-tag-badge">Distribusi Kategori</span>
+                    </div>
+
+                    <div class="category-bars-container" id="category-bars-container">
+                        <!-- Populated dynamically with native stacked bar items via script.js -->
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Section 3: Inventory Catalog & Control Panel -->
+            <section class="bento-panel-card catalog-panel" aria-label="Katalog Inventaris">
+
+                <!-- Toolbar: Sliding Tabs & Filter Bar -->
+                <div class="catalog-header-bar">
+
+                    <!-- Sliding Tabs from transitions.dev -->
+                    <div class="t-tabs" role="tablist" id="filter-tabs">
+                        <span class="t-tabs-pill" id="tabs-pill" aria-hidden="true"></span>
+                        <button type="button" class="t-tab" role="tab" aria-selected="true" data-filter="">
+                            Semua Barang <span class="tab-chip" id="tab-cnt-all">0</span>
+                        </button>
+                        <button type="button" class="t-tab" role="tab" aria-selected="false" data-filter="Baik">
+                            Kondisi Baik <span class="tab-chip chip-good" id="tab-cnt-good">0</span>
+                        </button>
+                        <button type="button" class="t-tab" role="tab" aria-selected="false" data-filter="Rusak">
+                            Rusak / Servis <span class="tab-chip chip-bad" id="tab-cnt-bad">0</span>
+                        </button>
+                        <button type="button" class="t-tab" role="tab" aria-selected="false" data-filter="low-stock">
+                            Stok Tipis (&le; 2) <span class="tab-chip" id="tab-cnt-low">0</span>
+                        </button>
+                    </div>
+
+                    <!-- Hidden legacy filter for backward compatibility -->
+                    <select id="filter-condition" class="sr-only" aria-hidden="true">
+                        <option value="">Semua kondisi</option>
+                        <option value="Baik">Baik</option>
+                        <option value="Rusak">Rusak</option>
+                    </select>
+
+                    <!-- Filter Controls: Search & Category & Sort -->
+                    <div class="catalog-actions-bar">
+                        <div class="search-field-wrap">
+                            <svg class="search-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="search" id="search-input" placeholder="Cari nama, kategori, deskripsi..."
+                                autocomplete="off">
+                            <button type="button" class="btn-clear-search" id="btn-clear-search"
+                                title="Hapus teks pencarian" aria-label="Hapus teks pencarian" hidden>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="custom-select-box">
+                            <select id="filter-category" class="filter-select" aria-label="Pilih Kategori">
+                                <option value="">Semua Kategori</option>
+                                <option value="Router">Router</option>
+                                <option value="Switch">Switch</option>
+                                <option value="Modem">Modem</option>
+                                <option value="Kabel">Kabel</option>
+                                <option value="Aksesori">Aksesori</option>
+                                <option value="Alat">Alat</option>
+                            </select>
+                        </div>
+
+                        <div class="custom-select-box">
+                            <select id="sort-order" class="filter-select" aria-label="Urutan Tampilan">
+                                <option value="default">Urutan Standar</option>
+                                <option value="name-asc">Nama (A &rarr; Z)</option>
+                                <option value="name-desc">Nama (Z &rarr; A)</option>
+                                <option value="qty-desc">Stok Terbanyak</option>
+                                <option value="qty-asc">Stok Tersedikit</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Filter Badges -->
+                <div class="active-chips-row" id="active-chips-row" hidden>
+                    <span class="active-chips-label">Filter Aktif:</span>
+                    <div class="chips-list" id="chips-list"></div>
+                    <button type="button" class="btn-reset-filters" id="btn-reset-filters">Reset Filter</button>
+                </div>
+
+                <!-- Table Wrapper -->
+                <div class="table-container">
+                    <table class="lab-table" id="inventory-table">
+                        <thead>
+                            <tr>
+                                <th class="col-num">#</th>
+                                <th class="col-name">Perangkat Lab &amp; Model</th>
+                                <th class="col-cat">Kategori</th>
+                                <th class="col-qty">Jumlah Stok</th>
+                                <th class="col-cond">Kondisi</th>
+                                <th class="col-desc">Keterangan / Catatan</th>
+                                <th class="col-action text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-body">
+                            <!-- Populated dynamically via script.js -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state-card" id="empty-state" hidden>
+                    <div class="empty-icon-ring">
+                        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            <line x1="8" y1="11" x2="14" y2="11"></line>
+                        </svg>
+                    </div>
+                    <h3 class="empty-title">Data tidak ditemukan</h3>
+                    <p class="empty-desc" id="empty-state-desc">Belum ada barang yang sesuai dengan kata kunci atau
+                        filter yang Anda terapkan.</p>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btn-empty-clear">Reset Filter
+                        Pencarian</button>
+                </div>
+
+                <!-- Table Footer Bar -->
+                <div class="table-footer-row">
+                    <span class="table-count-text" id="table-summary-info">Menampilkan 0 data</span>
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="container footer-inner">
+                <p>&copy; 2026 LabStock &bull; Kelompok C</p>
             </div>
+        </footer>
 
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Barang</th>
-                            <th>Kategori</th>
-                            <th>Jumlah</th>
-                            <th>Kondisi</th>
-                            <th>Deskripsi</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventory-body">
-                        <!-- Baris barang akan diisi oleh JavaScript di tahap berikutnya -->
-                    </tbody>
-                </table>
+    </div>
+
+    <!-- Modal Tambah Barang (transitions.dev 06-modal) -->
+    <div class="t-modal-backdrop" id="modal-add" hidden>
+        <div class="t-modal modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+            <div class="modal-card-header">
+                <div class="modal-card-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </div>
+                <div class="modal-card-titles">
+                    <h2 id="modal-title" class="modal-title">Tambah Perangkat Inventaris</h2>
+                    <p class="modal-subtitle">Daftarkan perangkat baru ke dalam katalog laboratorium</p>
+                </div>
+                <button type="button" class="btn-close-modal" id="btn-modal-close-icon" aria-label="Tutup form modal">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
-
-            <p class="empty-state" id="empty-state">Belum ada data barang.</p>
-        </section>
-
-    </main>
-    <!-- Modal Tambah Barang -->
-    <div class="modal-backdrop" id="modal-add" hidden>
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-            <h2 id="modal-title">Tambah Barang</h2>
 
             <form id="form-add" novalidate>
-                <label for="input-name">Nama Barang *</label>
-                <input type="text" id="input-name" maxlength="100" placeholder="Contoh: Mikrotik RB750Gr3">
+                <div class="modal-card-body">
 
-                <label for="input-category">Kategori *</label>
-                <input type="text" id="input-category" list="category-list" maxlength="50" placeholder="Contoh: Router">
-                <datalist id="category-list">
-                    <option value="Router"></option>
-                    <option value="Switch"></option>
-                    <option value="Modem"></option>
-                    <option value="Kabel"></option>
-                    <option value="Aksesori"></option>
-                    <option value="Alat"></option>
-                </datalist>
+                    <div class="form-field">
+                        <label for="input-name" class="field-label">
+                            Nama Perangkat <span class="req">*</span>
+                        </label>
+                        <input type="text" id="input-name" class="field-input" maxlength="100"
+                            placeholder="Contoh: Mikrotik RB750Gr3, Switch Cisco 2960" required>
+                    </div>
 
-                <label for="input-quantity">Jumlah *</label>
-                <input type="number" id="input-quantity" min="0" step="1" placeholder="Contoh: 5">
+                    <div class="form-grid-2">
+                        <div class="form-field">
+                            <label for="input-category" class="field-label">
+                                Kategori <span class="req">*</span>
+                            </label>
+                            <input type="text" id="input-category" class="field-input" list="category-list"
+                                maxlength="50" placeholder="Pilih / ketik kategori" required>
+                            <datalist id="category-list">
+                                <option value="Router"></option>
+                                <option value="Switch"></option>
+                                <option value="Modem"></option>
+                                <option value="Kabel"></option>
+                                <option value="Aksesori"></option>
+                                <option value="Alat"></option>
+                            </datalist>
+                        </div>
 
-                <label for="input-condition">Kondisi *</label>
-                <select id="input-condition">
-                    <option value="Baik">Baik</option>
-                    <option value="Rusak">Rusak</option>
-                </select>
+                        <div class="form-field">
+                            <label for="input-quantity" class="field-label">
+                                Jumlah Stok Unit <span class="req">*</span>
+                            </label>
+                            <input type="number" id="input-quantity" class="field-input" min="0" step="1"
+                                placeholder="Contoh: 5" required>
+                        </div>
+                    </div>
 
-                <label for="input-description">Deskripsi (opsional)</label>
-                <textarea id="input-description" rows="3" maxlength="200"
-                    placeholder="Keterangan singkat barang"></textarea>
+                    <div class="form-field">
+                        <label class="field-label">Kondisi Perangkat <span class="req">*</span></label>
+                        <div class="condition-picker-grid">
+                            <label class="condition-picker-option option-good">
+                                <input type="radio" name="modal-cond-radio" value="Baik" checked>
+                                <div class="option-content">
+                                    <div class="option-dot dot-good"></div>
+                                    <div>
+                                        <strong>Baik (Siap Pakai)</strong>
+                                        <span>Perangkat siap beroperasi</span>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="condition-picker-option option-bad">
+                                <input type="radio" name="modal-cond-radio" value="Rusak">
+                                <div class="option-content">
+                                    <div class="option-dot dot-bad"></div>
+                                    <div>
+                                        <strong>Rusak (Butuh Servis)</strong>
+                                        <span>Terdapat malfungsi / aus</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        <!-- Hidden legacy select for backward compatibility -->
+                        <select id="input-condition" class="sr-only" aria-hidden="true">
+                            <option value="Baik" selected>Baik</option>
+                            <option value="Rusak">Rusak</option>
+                        </select>
+                    </div>
 
-                <p class="form-error" id="form-error" hidden></p>
+                    <div class="form-field">
+                        <label for="input-description" class="field-label">
+                            Deskripsi / Catatan Tambahan <span class="opt">(opsional)</span>
+                        </label>
+                        <textarea id="input-description" class="field-input field-textarea" rows="3" maxlength="200"
+                            placeholder="Contoh: Digunakan di rak praktikum A1, kabel power cadangan"></textarea>
+                    </div>
 
-                <div class="modal-actions">
+                    <div class="form-error-alert" id="form-error" hidden>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span id="form-error-msg"></span>
+                    </div>
+
+                </div>
+
+                <div class="modal-card-footer">
                     <button type="button" class="btn btn-secondary" id="btn-cancel">Batal</button>
-                    <button type="submit" class="btn btn-primary" id="btn-submit">Simpan</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>Simpan Perangkat</span>
+                    </button>
                 </div>
             </form>
+
         </div>
     </div>
+
+    <!-- Modal Konfirmasi Hapus (transitions.dev 06-modal) -->
+    <div class="t-modal-backdrop" id="modal-delete" hidden>
+        <div class="t-modal modal-card modal-confirm-card" role="dialog" aria-modal="true"
+            aria-labelledby="modal-del-title">
+            <div class="confirm-content-box">
+                <div class="confirm-icon-ring">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </div>
+                <h2 id="modal-del-title" class="confirm-heading">Hapus Perangkat Inventaris?</h2>
+                <p class="confirm-text" id="modal-del-desc">Perangkat ini akan dihapus permanen dari daftar inventaris
+                    laboratorium.</p>
+
+                <div class="confirm-buttons-row">
+                    <button type="button" class="btn btn-secondary" id="btn-del-cancel">Batal</button>
+                    <button type="button" class="btn btn-danger" id="btn-del-confirm">Hapus Sekarang</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification (transitions.dev 22-toast) -->
+    <div class="t-toast" id="app-toast" role="status" aria-live="polite">
+        <div class="toast-indicator-icon" id="toast-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+        <span class="toast-text-content" id="toast-message">Pemberitahuan</span>
+    </div>
+
+    <!-- Scripts (100% Native Vanilla JS) -->
     <script src="mock-data.js"></script>
     <script src="script.js"></script>
 </body>
