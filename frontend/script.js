@@ -30,6 +30,7 @@ function validateItem(item) {
 // =====================================================
 // LAPISAN DATA (hanya bagian ini yang berurusan dengan sumber data)
 // =====================================================
+
 let mockDb = (typeof MOCK_INVENTORY !== "undefined")
     ? JSON.parse(JSON.stringify(MOCK_INVENTORY))
     : [];
@@ -62,6 +63,7 @@ async function getInventory() {
 async function addInventory(item) {
     if (USE_MOCK) {
         // Meniru Backend: tolak data tidak valid (seperti respons 400)
+
         const message = validateItem(item);
         if (message) {
             throw new Error(message);
@@ -81,10 +83,34 @@ async function addInventory(item) {
     return await response.json();
 }
 
+// Menghapus barang berdasarkan INDEX asli di array (bukan nomor baris di layar)
+async function deleteInventory(index) {
+    if (USE_MOCK) {
+        // Meniru Backend: index di luar jangkauan = seperti respons 404
+        if (!Number.isInteger(index) || index < 0 || index >= mockDb.length) {
+            throw new Error("Barang tidak ditemukan.");
+        }
+        const deleted = mockDb.splice(index, 1)[0];
+        return { message: "Barang berhasil dihapus", deleted: deleted };
+    }
+
+    const response = await fetch(`${API_URL}?index=${index}`, {
+        method: "DELETE"
+
+    });
+    if (!response.ok) {
+        throw new Error(await readError(response, "Gagal menghapus barang"));
+    }
+    return await response.json();
+}
+
 // =====================================================
 // STATE (data yang sedang dipakai halaman)
 // =====================================================
-let inventory = [];
+let inventory = [];        // data lengkap dari sumber data
+let searchKeyword = "";    // isi kolom pencarian
+let filterCondition = "";  // "" = semua, atau "Baik" / "Rusak"
+let isDeleting = false;    // penjaga agar klik ganda tidak menghapus barang lain
 
 // =====================================================
 // UI: FUNGSI BANTU
@@ -96,6 +122,28 @@ function escapeHtml(text) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
+}
+
+// Menghasilkan daftar baris yang tampil, SESUAI pencarian dan filter.
+// Index asli dipasang dulu (map), baru disaring (filter),
+// sehingga index tetap menunjuk posisi di data lengkap.
+function getVisibleRows() {
+    const keyword = searchKeyword.trim().toLowerCase();
+
+
+    return inventory
+        .map((item, index) => ({ item, index }))
+        .filter(({ item }) => {
+            const matchesKeyword =
+                keyword === "" ||
+                String(item.name).toLowerCase().includes(keyword) ||
+                String(item.category).toLowerCase().includes(keyword);
+
+            const matchesCondition =
+                filterCondition === "" || item.condition === filterCondition;
+
+            return matchesKeyword && matchesCondition;
+        });
 }
 
 // =====================================================
@@ -114,6 +162,7 @@ function renderStats(items) {
     document.getElementById("stat-total").textContent = totalTypes;
     document.getElementById("stat-units").textContent = totalUnits;
     document.getElementById("stat-good").textContent = goodUnits;
+
     document.getElementById("stat-bad").textContent = badUnits;
 }
 
@@ -124,7 +173,10 @@ function renderTable(rows) {
 
     if (rows.length === 0) {
         tbody.innerHTML = "";
-        emptyState.textContent = "Belum ada data barang.";
+        // Bedakan: data memang kosong, atau data ada tetapi tidak cocok dengan saringan
+        emptyState.textContent = inventory.length === 0
+            ? "Belum ada data barang."
+            : "Tidak ada barang yang cocok dengan pencarian atau filter.";
         emptyState.hidden = false;
         return;
     }
@@ -142,16 +194,17 @@ function renderTable(rows) {
           <td>${escapeHtml(item.quantity)}</td>
           <td><span class="badge ${badgeClass}">${escapeHtml(item.condition)}</span></td>
           <td>${escapeHtml(item.description) || "-"}</td>
-          <td>-</td>
+          <td><button type="button" class="btn btn-danger btn-small btn-delete">Hapus</button></td>
+
         </tr>`;
         })
         .join("");
 }
 
 function renderAll() {
-    const rows = inventory.map((item, index) => ({ item, index }));
+    // Dashboard selalu menghitung SEMUA data; tabel hanya yang lolos saringan
     renderStats(inventory);
-    renderTable(rows);
+    renderTable(getVisibleRows());
 }
 
 // =====================================================
@@ -175,6 +228,7 @@ function closeAddModal() {
 }
 
 // =====================================================
+
 // EVENT HANDLER
 // =====================================================
 async function handleAddSubmit(event) {
@@ -207,14 +261,63 @@ async function handleAddSubmit(event) {
     } catch (error) {
         setFormError(error.message);
     } finally {
+
         submitButton.disabled = false;
     }
+}
+
+// Satu listener di <tbody> untuk semua tombol Hapus (event delegation)
+async function handleTableClick(event) {
+    const button = event.target.closest(".btn-delete");
+    if (!button) {
+        return; // yang diklik bukan tombol Hapus
+    }
+    if (isDeleting) {
+        return; // proses hapus sebelumnya belum selesai
+    }
+
+    // Index ASLI dibaca dari atribut data-index, bukan dari nomor baris
+    const index = Number(button.closest("tr").dataset.index);
+    const item = inventory[index];
+    if (!item) {
+        return;
+    }
+
+    const sure = confirm(`Hapus "${item.name}" (${item.quantity} unit) dari inventaris?`);
+    if (!sure) {
+        return;
+    }
+
+    isDeleting = true;
+    try {
+        await deleteInventory(index);
+    } catch (error) {
+        alert("Gagal menghapus barang: " + error.message);
+    }
+
+    // Selalu ambil data ulang: index barang di bawahnya sudah bergeser
+    await loadInventory();
+    isDeleting = false;
+}
+
+function handleSearchInput(event) {
+    searchKeyword = event.target.value;
+    renderAll();
+}
+
+function handleFilterChange(event) {
+    filterCondition = event.target.value;
+    renderAll();
 }
 
 function setupEvents() {
     document.getElementById("btn-add").addEventListener("click", openAddModal);
     document.getElementById("btn-cancel").addEventListener("click", closeAddModal);
     document.getElementById("form-add").addEventListener("submit", handleAddSubmit);
+
+    document.getElementById("inventory-body").addEventListener("click", handleTableClick);
+    document.getElementById("search-input").addEventListener("input", handleSearchInput);
+    document.getElementById("filter-condition").addEventListener("change", handleFilterChange);
 
     // Klik area gelap di luar kotak form = tutup modal
     document.getElementById("modal-add").addEventListener("click", (event) => {
@@ -224,6 +327,7 @@ function setupEvents() {
     });
 
     // Tombol Esc = tutup modal
+
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
             closeAddModal();
@@ -248,5 +352,9 @@ async function loadInventory() {
 
 document.addEventListener("DOMContentLoaded", () => {
     setupEvents();
+    // Browser kadang mengembalikan isi kolom pencarian setelah refresh;
+    // samakan state dengan isi kolom yang sebenarnya.
+    searchKeyword = document.getElementById("search-input").value;
+    filterCondition = document.getElementById("filter-condition").value;
     loadInventory();
 });

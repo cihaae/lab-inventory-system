@@ -274,3 +274,19 @@ th {
 .form-error[hidden] {
     display: none;
 }
+
+/* Tombol kecil dan tombol hapus */
+.btn-small {
+    padding: 5px 12px;
+    font-size: 0.85rem;
+}
+
+.btn-danger {
+    background: var(--bad-bg);
+    color: var(--bad);
+}
+
+.btn-danger:hover {
+    background: var(--bad);
+    color: #fff;
+}
