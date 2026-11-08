@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabStock - Inventaris Laboratorium</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="app-header">
+        <div class="container header-inner">
+            <div>
+                <h1>LabStock</h1>
+                <p class="subtitle">Katalog Inventaris Barang Laboratorium</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Dashboard: kartu ringkasan -->
+        <section class="stats" aria-label="Ringkasan inventaris">
+            <article class="stat-card">
+                <span class="stat-label">Total Jenis Barang</span>
+                <strong class="stat-value" id="stat-total">0</strong>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Total Unit</span>
+                <strong class="stat-value" id="stat-units">0</strong>
+            </article>
+            <article class="stat-card stat-good">
+                <span class="stat-label">Kondisi Baik</span>
+                <strong class="stat-value" id="stat-good">0</strong>
+            </article>
+            <article class="stat-card stat-bad">
+                <span class="stat-label">Rusak</span>
+                <strong class="stat-value" id="stat-bad">0</strong>
+            </article>
+        </section>
+
+        <!-- Daftar inventaris -->
+        <section class="panel">
+            <div class="toolbar">
+                <input type="search" id="search-input" placeholder="Cari nama atau kategori...">
+                <select id="filter-condition">
+                    <option value="">Semua kondisi</option>
+                    <option value="Baik">Baik</option>
+                    <option value="Rusak">Rusak</option>
+                </select>
+                <button type="button" class="btn btn-primary" id="btn-add">+ Tambah Barang</button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Barang</th>
+                            <th>Kategori</th>
+                            <th>Jumlah</th>
+                            <th>Kondisi</th>
+                            <th>Deskripsi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-body">
+                        <!-- Baris barang akan diisi oleh JavaScript di tahap berikutnya -->
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="empty-state" id="empty-state">Belum ada data barang.</p>
+        </section>
+
+    </main>
+    <!-- Modal Tambah Barang -->
+    <div class="modal-backdrop" id="modal-add" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <h2 id="modal-title">Tambah Barang</h2>
+
+            <form id="form-add" novalidate>
+                <label for="input-name">Nama Barang *</label>
+                <input type="text" id="input-name" maxlength="100" placeholder="Contoh: Mikrotik RB750Gr3">
+
+                <label for="input-category">Kategori *</label>
+                <input type="text" id="input-category" list="category-list" maxlength="50" placeholder="Contoh: Router">
+                <datalist id="category-list">
+                    <option value="Router"></option>
+                    <option value="Switch"></option>
+                    <option value="Modem"></option>
+                    <option value="Kabel"></option>
+                    <option value="Aksesori"></option>
+                    <option value="Alat"></option>
+                </datalist>
+
+                <label for="input-quantity">Jumlah *</label>
+                <input type="number" id="input-quantity" min="0" step="1" placeholder="Contoh: 5">
+
+                <label for="input-condition">Kondisi *</label>
+                <select id="input-condition">
+                    <option value="Baik">Baik</option>
+                    <option value="Rusak">Rusak</option>
+                </select>
+
+                <label for="input-description">Deskripsi (opsional)</label>
+                <textarea id="input-description" rows="3" maxlength="200"
+                    placeholder="Keterangan singkat barang"></textarea>
+
+                <p class="form-error" id="form-error" hidden></p>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="mock-data.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
