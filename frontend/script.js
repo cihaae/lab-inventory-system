@@ -1,0 +1,1 @@
+console.log("LabStock: script.js berhasil dimuat");
