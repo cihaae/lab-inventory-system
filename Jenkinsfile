@@ -49,3 +49,4 @@ pipeline {
       echo 'Pipeline LabStock gagal. Silakan periksa Console Output.'
     }
   }
+}
