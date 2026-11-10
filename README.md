@@ -2,9 +2,9 @@
 **Ujian Chunin Cloud Computing - Studi Kasus 4**
 
 ## Anggota Kelompok
-1. **Ganis Widya Renata** (NIM: 101012300227) - Frontend Service (HTML, CSS, Vanilla JS)
-2. **Muhammad Ilham** (NIM: [Isi NIM]) - Backend Service (Python REST API stdlib)
-3. **Ahmad Sulthon Jauhari** (NIM: 101012330135) - DevOps (Docker Compose, Nginx Reverse Proxy, Jenkins CI/CD)
+1. **Ganis Widya Renata** (NIM: 101012300227) - Frontend Service 
+2. **Muhammad Ilham** (NIM: [Isi NIM]) - Backend Service
+3. **Ahmad Sulthon Jauhari** (NIM: 101012330135) - DevOps
 
 ---
 
