@@ -2,9 +2,9 @@
 **Ujian Chunin Cloud Computing - Studi Kasus 4**
 
 ## Anggota Kelompok
-1. **Ganis** (NIM: [Isi NIM]) - Frontend Service (HTML, CSS, Vanilla JS)
-2. **Sulthon** (NIM: [Isi NIM]) - Backend Service (Python REST API stdlib)
-3. **Muhammad Ilham** (NIM: [Isi NIM]) - DevOps (Docker Compose, Nginx Reverse Proxy, Jenkins CI/CD)
+1. **Ganis Widya Renata** (NIM: 101012300227) - Frontend Service (HTML, CSS, Vanilla JS)
+2. **Muhammad Ilham** (NIM: [Isi NIM]) - Backend Service (Python REST API stdlib)
+3. **Ahmad Sulthon Jauhari** (NIM: 101012330135) - DevOps (Docker Compose, Nginx Reverse Proxy, Jenkins CI/CD)
 
 ---
 
@@ -96,7 +96,26 @@ Contoh body POST dengan header `Content-Type: application/json`:
 1. **Pipeline Script**: Menggunakan `Jenkinsfile` deklaratif di root repositori.
 2. **Trigger Webhook**: Event `push` GitHub diteruskan via ngrok tunnel (`https://<ngrok-domain>/github-webhook/`).
 3. **Pipeline Stages**:
-   - `Stage 1: Checkout Code`
-   - `Stage 2: Syntax Check` (validasi `app.py` via container Python)
-   - `Stage 3: Build & Deploy` (`docker compose up --build -d`)
-   - `Stage 4: Health Check` (curl endpoint `/api/inventory`)
+   - `Stage 1: Checkout Code` (Clone & pull source code terbaru dari GitHub).
+   - `Stage 2: Syntax Check` (Validasi sintaks `backend/app.py` via `py_compile`).
+   - `Stage 3: Build & Deploy` (Automated deployment via `docker compose up --build -d`).
+   - `Stage 4: Health Check` (Validasi endpoint API `/api/inventory` via `curl.exe`).
+
+### Panduan Setup Jenkins & Webhook
+1. **Tunnel Port Jenkins (8080)**:
+   ```sh
+   ngrok http 8080
+   ```
+2. **Konfigurasi GitHub Webhook**:
+   - URL: `https://<DOMAIN-NGROK>/github-webhook/`
+   - Content Type: `application/json`
+   - Event: `Just the push event`
+3. **Simpan GitHub PAT di Jenkins**:
+   - Buka `http://localhost:8080` -> *Manage Jenkins* -> *Credentials* -> *Global*.
+   - Tambah credential bertipe *Username with password*, isi ID: `github-pat-uts`.
+4. **Buat Job Pipeline**:
+   - New Item -> `labstock-pipeline` -> pilih *Pipeline*.
+   - Centang *GitHub hook trigger for GITScm polling*.
+   - Konfigurasi *Pipeline script from SCM*, SCM: Git, masukkan URL repo, credential `github-pat-uts`, Branch: `*/main`, Script Path: `Jenkinsfile`.
+5. **Uji Otomatisasi**:
+   - Setiap perintah `git push origin main` akan otomatis memicu build Jenkins dan mendeploy aplikasi ke `http://localhost:8081`.
