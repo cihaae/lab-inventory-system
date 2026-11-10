@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     LABSTOCK_PORT = '8081'
-    PATH          = "C:\\Users\\user\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
+    PATH          = "C:\\Users\\user\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\user\\AppData\\Local\\Programs\\DockerDesktop\\resources\\cli-plugins;${env.PATH}"
   }
 
   stages {
@@ -25,8 +25,8 @@ pipeline {
       steps {
         echo 'Deploying application via Docker Compose...'
         bat '''
-          docker compose down || ver >nul
-          docker compose up --build -d
+          docker-compose down || ver >nul
+          docker-compose up --build -d
         '''
       }
     }
@@ -34,9 +34,11 @@ pipeline {
     stage('4. Health Check') {
       steps {
         echo 'Menjalankan health check endpoint...'
-        sleep 5
-        bat 'docker compose ps'
-        bat 'curl.exe -fsS http://localhost:8081/api/inventory'
+        retry(5) {
+          sleep 5
+          bat 'curl.exe -fsS http://localhost:8081/api/inventory'
+        }
+        bat 'docker-compose ps'
       }
     }
   }
@@ -47,6 +49,7 @@ pipeline {
     }
     failure {
       echo 'Pipeline LabStock gagal. Silakan periksa Console Output.'
+      bat 'docker-compose logs --tail 30 || ver >nul'
     }
   }
 }
