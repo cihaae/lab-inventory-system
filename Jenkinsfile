@@ -1,8 +1,10 @@
+groovy
 pipeline {
   agent any
 
   environment {
     LABSTOCK_PORT = '8081'
+    PATH = "C:\\Program Files\\Docker\\Docker\\resources\\bin;${env.PATH}"
   }
 
   stages {
