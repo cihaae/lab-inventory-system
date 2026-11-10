@@ -9,28 +9,7 @@
 ---
 
 ## Diagram Arsitektur Sistem & CI/CD
-
-```text
-[Developer] --(git push)--> [GitHub Repo: main]
-                                  |
-                                  v (Webhook HTTPS)
-                             [ngrok Tunnel]
-                                  |
-                                  v
-                           [Jenkins :8080]
-                                  |
-                     (Docker CLI / Compose Engine)
-                                  |
-      +---------------------------+---------------------------+
-      |                                                       |
-[Service Frontend]                                      [Service Backend]
-- Image: nginx:alpine                                   - Image: backend/Dockerfile
-- Port Host: 8081 -> 80                                 - Port Internal: 5000 (Expose)
-- Bind Mount: ./frontend                                - Storage: Named Volume
-- Reverse Proxy: /api/ -> backend:5000                             (lab-inventory-data)
-      |                                                       |
-      +----------------- [Bridge: app-net] -------------------+
-```
+<img width="1600" height="915" alt="image" src="https://github.com/user-attachments/assets/740364eb-ebbc-4bbe-ad15-bf35e3105218" />
 
 ---
 
