@@ -1,19 +1,53 @@
-# LabStock
+# LabStock - Inventaris Barang Laboratorium
+**Ujian Chunin Cloud Computing - Studi Kasus 4**
 
-Implementasi studi kasus 4 Inventaris Barang Laboratorium. Frontend dibuat oleh Ganis. Backend bagian Sulthon menggunakan `backend/app.py` dan pustaka standar Python. Docker Compose dan Nginx merupakan bagian Ilham.
+## Anggota Kelompok
+1. **Ganis** (NIM: [Isi NIM]) - Frontend Service (HTML, CSS, Vanilla JS)
+2. **Sulthon** (NIM: [Isi NIM]) - Backend Service (Python REST API stdlib)
+3. **Muhammad Ilham** (NIM: [Isi NIM]) - DevOps (Docker Compose, Nginx Reverse Proxy, Jenkins CI/CD)
 
-## Menjalankan proyek
+---
 
-Buka Docker Desktop jika kamu menggunakan Windows. Dari folder yang berisi `docker-compose.yml`, jalankan:
+## Diagram Arsitektur Sistem & CI/CD
+
+```text
+[Developer] --(git push)--> [GitHub Repo: main]
+                                  |
+                                  v (Webhook HTTPS)
+                             [ngrok Tunnel]
+                                  |
+                                  v
+                           [Jenkins :8080]
+                                  |
+                     (Docker CLI / Compose Engine)
+                                  |
+      +---------------------------+---------------------------+
+      |                                                       |
+[Service Frontend]                                      [Service Backend]
+- Image: nginx:alpine                                   - Image: backend/Dockerfile
+- Port Host: 8081 -> 80                                 - Port Internal: 5000 (Expose)
+- Bind Mount: ./frontend                                - Storage: Named Volume
+- Reverse Proxy: /api/ -> backend:5000                             (lab-inventory-data)
+      |                                                       |
+      +----------------- [Bridge: app-net] -------------------+
+```
+
+---
+
+## Menjalankan Proyek Secara Lokal
+
+Buka Docker Desktop jika menggunakan Windows. Dari folder proyek:
 
 ```sh
 docker compose up --build -d
 docker compose ps
 ```
 
-Buka [LabStock](http://localhost:8080). Frontend pada paket ini sudah memakai API. Inventaris awal kosong jika volume baru dibuat. Barang contoh dari mode mock disimpan terpisah di browser.
-
-Kalau port 8080 sedang dipakai, buat file `.env` di folder proyek dengan isi `LABSTOCK_PORT=8081`. Jalankan kembali `docker compose up -d` lalu buka [LabStock di port 8081](http://localhost:8081).
+Buka browser di [http://localhost:8081](http://localhost:8081).
+Jika ingin menyesuaikan port, tentukan di file `.env`:
+```env
+LABSTOCK_PORT=8081
+```
 
 ## Kontrak API
 
@@ -37,23 +71,32 @@ Contoh body POST dengan header `Content-Type: application/json`:
 }
 ```
 
-`quantity` adalah bilangan bulat minimal 0. `condition` menerima `Baik` atau `Rusak`. `description` boleh dikosongkan atau dihilangkan. Batas karakter nama, kategori, dan deskripsi masing-masing 100, 50, dan 200. Index dimulai dari 0 dan mengikuti urutan array dari GET. API mengembalikan `400` untuk input tidak valid dan `404` untuk index di luar jangkauan. Keduanya menggunakan body JSON dengan field `error`.
+`quantity` adalah bilangan bulat minimal 0. `condition` menerima `Baik` atau `Rusak`. `description` boleh dikosongkan atau dihilangkan. Batas karakter nama, kategori, dan deskripsi masing-masing 100, 50, dan 200. Index dimulai dari 0 dan mengikuti urutan array dari GET.
 
-## Demo persistensi data
+## Demo Persistensi Data (Data Immunity)
 
 1. Tambahkan sebuah barang dari halaman LabStock.
-2. Jalankan `docker compose ps -q backend` untuk mendapatkan ID container.
-3. Ganti `ID_CONTAINER_BACKEND` dengan hasil perintah tersebut, lalu jalankan perintah berikut.
-
+2. Dapatkan ID kontainer backend:
    ```sh
-   docker rm -f ID_CONTAINER_BACKEND
+   docker compose ps -q backend
+   ```
+3. Hapus kontainer backend secara paksa:
+   ```sh
+   docker rm -f $(docker compose ps -q backend)
+   ```
+4. Jalankan kembali service backend:
+   ```sh
    docker compose up -d backend
    docker compose ps
    ```
+5. Tunggu backend berstatus `healthy`, lalu refresh halaman di browser. Barang yang disimpan tetap ada karena tersimpan di Named Volume `lab-inventory-data` (`/var/lib/backend_data/inventory.json`).
 
-4. Tunggu backend berstatus `healthy`, lalu muat ulang halaman. Jika Nginx masih memakai IP container lama, tunggu hingga cache DNS 10 detik habis dan muat ulang lagi.
-5. Pastikan barang tetap tampil, lalu uji penghapusannya dari halaman.
+## Otomatisasi CI/CD Jenkins
 
-Volume `lab-inventory-data` menyimpan file `/var/lib/backend_data/inventory.json`. Gunakan `docker compose down` untuk menghentikan demo sambil mempertahankan data. Opsi `-v` menghapus volume proyek beserta isinya.
-
-Jika kamu sudah menyimpan barang dengan paket sebelumnya, gunakan `docker volume ls` untuk mencari volume lama yang berakhiran `_lab-inventory-data`. Tetapkan `LABSTOCK_VOLUME_NAME` di file `.env` ke nama lengkap volume itu agar paket baru memakai data yang sama.
+1. **Pipeline Script**: Menggunakan `Jenkinsfile` deklaratif di root repositori.
+2. **Trigger Webhook**: Event `push` GitHub diteruskan via ngrok tunnel (`https://<ngrok-domain>/github-webhook/`).
+3. **Pipeline Stages**:
+   - `Stage 1: Checkout Code`
+   - `Stage 2: Syntax Check` (validasi `app.py` via container Python)
+   - `Stage 3: Build & Deploy` (`docker compose up --build -d`)
+   - `Stage 4: Health Check` (curl endpoint `/api/inventory`)
