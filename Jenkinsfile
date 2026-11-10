@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     LABSTOCK_PORT = '8081'
-    PATH          = "C:\\Users\\user\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Program Files\\Docker\\Docker\\resources\\bin;${env.PATH}"
+    PATH          = "C:\\Users\\user\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
   }
 
   stages {
@@ -34,8 +34,6 @@ pipeline {
     stage('4. Health Check') {
       steps {
         echo 'Menjalankan health check endpoint...'
-  … Files\\Docker\\Docker\\resources\\bin;${  (↓ 3.1k tok)
- 
         sleep 5
         bat 'docker compose ps'
         bat 'curl.exe -fsS http://localhost:8081/api/inventory'
@@ -51,4 +49,3 @@ pipeline {
       echo 'Pipeline LabStock gagal. Silakan periksa Console Output.'
     }
   }
-}
