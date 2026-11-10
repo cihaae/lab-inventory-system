@@ -6,7 +6,7 @@
 // =====================================================================
 // 1. KONFIGURASI & KONTRAK DATA
 // =====================================================================
-const USE_MOCK = true;
+const USE_MOCK = false;
 const API_URL = "/api/inventory";
 const CONDITIONS = ["Baik", "Rusak"];
 const STORAGE_KEY = "labstock_inventory_data_v2";
