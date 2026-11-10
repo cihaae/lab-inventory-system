@@ -1,10 +1,9 @@
-groovy
 pipeline {
   agent any
 
   environment {
     LABSTOCK_PORT = '8081'
-    PATH = "C:\\Program Files\\Docker\\Docker\\resources\\bin;${env.PATH}"
+    PATH          = "C:\\Users\\user\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Program Files\\Docker\\Docker\\resources\\bin;${env.PATH}"
   }
 
   stages {
@@ -18,7 +17,7 @@ pipeline {
     stage('2. Syntax Check') {
       steps {
         echo 'Memvalidasi sintaks backend Python...'
-        bat 'docker run --rm -v "%cd%/backend":/src -w /src python:3.12-slim python -m py_compile app.py'
+        bat '"C:\\Program Files\\Python312\\python.exe" -m py_compile backend\\app.py'
       }
     }
 
@@ -35,9 +34,11 @@ pipeline {
     stage('4. Health Check') {
       steps {
         echo 'Menjalankan health check endpoint...'
+  … Files\\Docker\\Docker\\resources\\bin;${  (↓ 3.1k tok)
+ 
         sleep 5
         bat 'docker compose ps'
-        bat 'curl -fsS http://localhost:8081/api/inventory'
+        bat 'curl.exe -fsS http://localhost:8081/api/inventory'
       }
     }
   }
