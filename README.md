@@ -3,7 +3,7 @@
 
 ## Anggota Kelompok
 1. **Ganis Widya Renata** (NIM: 101012300227) - Frontend Service 
-2. **Muhammad Ilham** (NIM: [Isi NIM]) - Backend Service
+2. **Muhammad Ilham** (NIM: 101012330001) - Backend Service
 3. **Ahmad Sulthon Jauhari** (NIM: 101012330135) - DevOps
 
 ---
